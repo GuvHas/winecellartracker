@@ -1,6 +1,6 @@
 {
   "name": "Cellar Tracker -- Wine Collection Management GuvHas",  
-  "domain": "cellartracker",  
+  "domain": "cellar_tracker",  
   "documentation": "https://github.com/ahoernecke/ha_cellar_tracker",
   "render_readme": "true"
 }
