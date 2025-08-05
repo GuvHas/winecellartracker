@@ -1,6 +1,6 @@
 {
   "domain": "cellar_tracker",
-  "name": "Cellar Tracker Experiment",
+  "name": "Cellar Tracker GuvHas",
   "dependencies": [],
   "version": "2025.08.05",
   "iot_class": "cloud_polling",
