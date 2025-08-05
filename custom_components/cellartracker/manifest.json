@@ -1,6 +1,7 @@
 {
   "domain": "cellar_tracker",
   "name": "Cellar Tracker GuvHas",
+  "documentation": "https://github.com/GuvHas/winecellartracker",
   "dependencies": [],
   "version": "2025.08.05",
   "iot_class": "cloud_polling",
