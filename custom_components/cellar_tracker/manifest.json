@@ -1,0 +1,9 @@
+{
+  "domain": "winecellartracker",
+  "name": "Cellar Tracker Experiment",
+  "dependencies": [],
+  "version": "2025.08.05",
+  "iot_class": "cloud_polling",
+  "codeowners": ["@GuvHas"],
+  "requirements": ["winecellartracker"]
+}
