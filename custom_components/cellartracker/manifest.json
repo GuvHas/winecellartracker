@@ -5,6 +5,6 @@
   "dependencies": [],
   "version": "2025.06.19",
   "iot_class": "cloud_polling",
-  "codeowners": ["@ahoernecke"],
+  "codeowners": ["@GuvHas"],
   "requirements": ["cellartracker"]
 }
