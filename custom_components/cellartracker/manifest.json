@@ -3,7 +3,7 @@
   "name": "Cellar Tracker GuvHas",
   "documentation": "https://github.com/GuvHas/winecellartracker",
   "dependencies": [],
-  "version": "6fe454d",
+  "version": "4b699fd",
   "iot_class": "cloud_polling",
   "codeowners": ["@GuvHas"],
   "requirements": ["cellartracker"]
