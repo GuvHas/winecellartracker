@@ -3,6 +3,6 @@
   "name": "Cellar Tracker -- Wine Collection Management GuvHas",  
   "documentation": "https://github.com/ahoernecke/ha_cellar_tracker",
   "dependencies": [],
-  "version": "20250805",
+  "version": "2025.08.05",
   "requirements": ["cellartracker"]
 }
