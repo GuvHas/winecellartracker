@@ -6,5 +6,5 @@
   "version": "301cf0a",
   "iot_class": "cloud_polling",
   "codeowners": ["@GuvHas"],
-  "requirements": ["cellartracker"]
+  "requirements": ["cellartracker"],
 }
