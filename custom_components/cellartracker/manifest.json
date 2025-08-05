@@ -1,10 +1,4 @@
 {
   "domain": "cellartracker",
   "name": "Cellar Tracker GuvHas",
-  "documentation": "https://github.com/GuvHas/winecellartracker",
-  "dependencies": [],
-  "version": "301cf0a",
-  "iot_class": "cloud_polling",
-  "codeowners": ["@GuvHas"],
-  "requirements": ["cellartracker"]
 }
