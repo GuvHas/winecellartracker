@@ -51,9 +51,7 @@ def setup(hass, config):
     hass.data[DOMAIN] = WineCellarData(username, password)
     hass.data[DOMAIN].update()
 
-
-    
-    hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
+    hdisco.load_platform(hass, 'sensor', DOMAIN, {}, config)
     
 
     return True
