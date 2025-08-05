@@ -1,5 +1,4 @@
 {
   "name": "Cellar Tracker -- Wine Collection Management GuvHas",  
-  "domain": "cellartracker",
-  "content_in_root": "true"
+  "domain": "cellartracker"  
 }
