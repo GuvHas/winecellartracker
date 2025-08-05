@@ -1,5 +1,5 @@
 {
-  "domain": "cellar_tracker",
+  "domain": "cellartracker",
   "name": "Cellar Tracker GuvHas",
   "documentation": "https://github.com/GuvHas/winecellartracker",
   "dependencies": [],
