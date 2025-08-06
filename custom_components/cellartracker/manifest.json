@@ -3,7 +3,7 @@
   "name": "Cellar Tracker -- GuvHas",  
   "documentation": "https://github.com/ahoernecke/ha_cellar_tracker",
   "dependencies": [],
-  "version": "2025.06.19",
+  "version": "ab539a6",
   "iot_class": "cloud_polling",
   "codeowners": ["@GuvHas"],
   "requirements": ["cellartracker"]
