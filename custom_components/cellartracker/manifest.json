@@ -1,10 +1,9 @@
 {
   "domain": "cellar_tracker",
-  "name": "Cellar Tracker -- GuvHas",  
+  "name": "Cellar Tracker",
   "documentation": "https://github.com/ahoernecke/ha_cellar_tracker",
   "dependencies": [],
-  "version": "ab539a6",
-  "iot_class": "cloud_polling",
+  "version": "2025.08.06",
   "codeowners": ["@GuvHas"],
   "requirements": ["cellartracker"]
 }
