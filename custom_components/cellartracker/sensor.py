@@ -1,116 +1,118 @@
-from cellartracker import cellartracker
-import pandas as pd
-import numpy as np
-import logging
-
-from random import seed
-from random import randint
-from datetime import timedelta
-
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
-import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
+"""Platform for sensor integration."""
+from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-
-
-
-
-"""Example Load Platform integration."""
-DOMAIN = 'cellar_tracker'
-
-SCAN_INTERVAL = timedelta(seconds=3600)
-
-MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=3600)
+from datetime import timedelta
+import logging
+import time
+import pandas as pd
+import re
+from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_USERNAME): cv.string,
-                vol.Required(CONF_PASSWORD): cv.string,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
+def setup_platform(hass, config, add_entities, discovery_info=None):
+    """Set up the sensor platform."""
+    # We only want this platform to be set up via discovery.
+    if discovery_info is None:
+        return
+
+    devs = []
+
+    master_data = hass.data[DOMAIN].get_readings()
+    scan_interval = hass.data[DOMAIN].get_scan_interval()
 
 
-def setup(hass, config):
-    """Your controller/hub specific code."""
-    # Data that you want to share with your platforms
-    
-    conf = config[DOMAIN]
-    
-    username = conf[CONF_USERNAME]
-    password = conf[CONF_PASSWORD]
-    
+    for sensor_type in master_data.keys():
 
-    
-    hass.data[DOMAIN] = WineCellarData(username, password)
-    hass.data[DOMAIN].update()
+        data = master_data[sensor_type]
+        if(type(data) == dict):
+            for key in data.keys():
 
+                value = data[key]
+                sensor_data = data.copy()
+                sensor_data[sensor_type] = key
 
-    
-    hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
-    
+                devs.append(WineCellarSensor(sensor_type, key, sensor_data, scan_interval))
+        else:
+            devs.append(WineCellarSensor(sensor_type, None, data, scan_interval))
 
-    return True
-
-class WineCellarData:
-    """Get the latest data and update the states."""
-
-    def __init__(self, username, password):
-        """Init the Canary data object."""
-
-        # self._api = Api(username, password, timeout)
-
-        # self._locations_by_id = {}
-        # self._readings_by_device_id = {}
-        self._username = username
-        self._password = password
-        
-
-    def get_reading(self, key):
-      return self._data[key]
-
-    def get_readings(self):
-      return self._data
-
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
-    def update(self, **kwargs):
-      data = {}
-      username = self._username
-      password = self._password
+    add_entities(devs, True)
 
 
-      client = cellartracker.CellarTracker(username, password)
-      list = client.get_inventory()
-      df = pd.DataFrame(list)
-      df[["Price","Valuation"]] = df[["Price","Valuation"]].apply(pd.to_numeric)
+class WineCellarSensor(Entity):
+    """Representation of a sensor."""
 
-      groups = ['Varietal', 'Country', 'Vintage', 'Producer', 'Type', 'Location', 'Bin']
+    def __init__(self, sensor_type, sub_type, data, scan_interval):
+        """Initialize the sensor."""
 
-      for group in groups:
-        group_data = df.groupby(group).agg({'iWine':'count','Valuation':['sum','mean']})
-        group_data.columns = group_data.columns.droplevel(0)
-        group_data["%"] = 1
-        group_data["%"] = (group_data['count']/group_data['count'].sum() ) * 100
-        group_data.columns = ["count", "value_total", "value_avg", "%"]
-        data[group] = {}
-        for row, item in group_data.iterrows():
-          if row == "1001":
-            row = "NV"
-          data[group][row] = item.to_dict()
-          data[group][row]["sub_type"] = row
+        self._sensor_type = sensor_type
+        self._sub_type = sub_type
+        self._data = data
+        if(self._sub_type):
+            self._slug = self._sub_type.lower()
+            self._slug = re.sub(r'[^a-z0-9]+', '-', self._slug).strip('-')
+            self._slug = re.sub(r'[_]+', '-', self._slug)
+        else:
+            self._slug = None
+        # self.update()
+        self.update = Throttle(scan_interval)(self._update)
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        if(self._sub_type):
+            return "cellar_tracker." + self._sensor_type.lower() + "." + self._slug.lower()
+        else:
+            return "cellar_tracker." + self._sensor_type.lower()
 
 
+    @property
+    def extra_state_attributes(self):
+        if(self._sub_type):
+            return self._data
 
-      data["total_bottles"] = len(df)
-      data["total_value"] = df['Valuation'].sum()
-      data["average_value"] = df['Valuation'].mean()
-      self._data = data
-      
+        return {}
 
-    
+    @property
+    def icon(self):
+        if(re.match(".+_value",self._sensor_type)):
+            return "mdi:currency-usd"
+
+        return "mdi:bottle-wine"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        if(self._state == None):
+            return 0
+
+        if(re.match(".+_value",self._sensor_type)):
+            return f"{self.hass.config.currency}{round(self._state,2)}"
+
+        return self._state
+
+    @property
+    def unique_id(self):
+        return "cellar_tracker." + self.name
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        if(re.match(".+_value",self._sensor_type)):
+            return None
+
+        return "bottles"
+
+    def _update(self):
+        """Fetch new state data for the sensor.
+        This is the only method that should fetch new data for Home Assistant.
+        """
+        _LOGGER.debug(f"Updating data for {self.name}")
+        self.hass.data[DOMAIN].update()
+        self._data = self.hass.data[DOMAIN].get_reading(self._sensor_type)
+
+        if(self._sub_type):
+            self._data = self._data[self._sub_type]
+            self._state = self._data["count"]
+        else:
+            self._state = self._data
